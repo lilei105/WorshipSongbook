@@ -3,6 +3,8 @@
 import Headline from '../Headline';
 import Footer from '../Footer';
 import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import axios from 'axios';
 
 export default () => {
   const n = 7;
@@ -37,14 +39,29 @@ export default () => {
     },
   ];
 
+  const router = useRouter();
+
+  const handleSubmit = (data) => {
+    console.log(data);
+    router.push({
+      pathname: '/detail',
+      query: data,
+    });
+  };
+
   return (
     <div>
       <Headline title="2023年9月3日 主日敬拜" />
 
       <div className="mt-16 grid grid-cols-2">
         {images.map((image, index) => (
-          <Link href="/list">
-            <div key={index} className=" relative">
+          <div key={index} className=" relative">
+            <Link
+              href="/detail"
+              as="/detail"
+              method="post"
+              onClick={() => handleSubmit(image)}
+            >
               <div className=" bg-blue-300 border border-zinc-300 p-2 absolute top-0 left-0 w-full ">
                 {image['name']}
               </div>
@@ -52,8 +69,8 @@ export default () => {
               <div className="h-auto m-1 ">
                 <img src={image['url']} alt="歌谱图片" />
               </div>
-            </div>
-          </Link>
+            </Link>
+          </div>
         ))}
       </div>
 
