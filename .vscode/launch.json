@@ -5,8 +5,15 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "command": "npm start",
-      "name": "Run",
+      "command": "npm run start",
+      "name": "Run start",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+
+    {
+      "command": "npm run dev",
+      "name": "Run dev",
       "request": "launch",
       "type": "node-terminal"
     }

@@ -1,14 +1,28 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import Headline from '../Headline';
-import Footer from '../Footer';
+import { useRouter } from "next/navigation";
+import Headline from "../Headline";
+import Footer from "../Footer";
+import {
+  MediaController,
+  MediaControlBar,
+  MediaTimeRange,
+  MediaTimeDisplay,
+  MediaVolumeRange,
+  MediaPlayButton,
+  MediaSeekBackwardButton,
+  MediaSeekForwardButton,
+  MediaMuteButton,
+} from "media-chrome/dist/react";
 
 export default () => {
   const router = useRouter();
 
+  const audio_url =
+    "http://1253489749.vod2.myqcloud.com/9d4470b6vodcq1253489749/7cf9d72e5576678020597380155/iIaFmFC1RmUA.mp3";
+
   async function toList() {
-    await router.push('/list');
+    await router.push("/list");
   }
 
   return (
@@ -26,12 +40,20 @@ export default () => {
       </div>
 
       <div className="container mx-auto max-w-screen-sm fixed bottom-16">
-        <div className="container mx-auto grid grid-cols-3">
-          <div className="p-5 text-center">上一首</div>
-          <div className="p-5 text-center" onClick={toList}>
-            播放器
-          </div>
-          <div className="p-5 text-center">下一首</div>
+        <div className="container mx-auto items-center ">
+          {/* <div className="p-5 text-center">上一首</div> */}
+          <MediaController audio>
+            <audio slot="media" src={audio_url} />
+            <MediaControlBar style={{ width: "100%" }}>
+              <MediaPlayButton>
+                <span slot="play" className=" text-4xl">Play</span>
+                <span slot="pause">Pause</span>
+              </MediaPlayButton>
+              <MediaTimeRange></MediaTimeRange>
+              <MediaTimeDisplay showDuration></MediaTimeDisplay>
+            </MediaControlBar>
+          </MediaController>
+          {/* <div className="p-5 text-center">下一首</div> */}
         </div>
       </div>
 
