@@ -7,6 +7,8 @@ const CustomComponent = ({ title }) => {
     linkUrl = '/';
   } else if (title === '回到日历') {
     linkUrl = '/calendar';
+  } else if (title === '回到歌曲列表') {
+    linkUrl = '/list';
   } else {
     linkUrl = '/'; // 如果传入的title没有匹配的路由，可以设置一个默认的路由
   }
