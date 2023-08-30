@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Headline from './Headline';
 import Footer from './Footer';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -8,7 +9,10 @@ export default function Home() {
       <Headline title="Helloworld" />
 
       <div className="text-center text-xl">
-        <div className="bg-cyan-500 p-6 mt-40 mx-8 rounded-xl ">浏览歌单</div>
+        <Link href={'/calendar'}>
+          <div className="bg-cyan-500 p-6 mt-40 mx-8 rounded-xl ">浏览歌单</div>
+        </Link>
+
         <div className="bg-cyan-500 p-6 mt-10 mx-8 rounded-xl ">创建歌单</div>
 
         <div className="mt-40"></div>
