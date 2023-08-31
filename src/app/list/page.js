@@ -1,13 +1,13 @@
 'use client';
 
 import Headline from '../Headline';
+import Image from 'next/image';
 import Footer from '../Footer';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import axios from 'axios';
 
-export default () => {
-  const n = 7;
+export default function SongList() {
   const images = [
     {
       name: '歌名很长歌名很长歌名很长歌名很长',
@@ -41,12 +41,11 @@ export default () => {
 
   const router = useRouter();
 
-  const handleSubmit = (data) => {
-    console.log(data);
-    router.push({
-      pathname: '/detail',
-      query: data,
-    });
+  const handleClick = (image) => {
+    console.log(image);
+    setTimeout(() => {
+      console.log('Paused for 1 second');
+    }, 1000);
   };
 
   return (
@@ -56,12 +55,7 @@ export default () => {
       <div className="mt-16 grid grid-cols-2">
         {images.map((image, index) => (
           <div key={index} className=" relative">
-            <Link
-              href="/detail"
-              as="/detail"
-              method="post"
-              onClick={() => handleSubmit(image)}
-            >
+            <Link href={'/detail'}>
               <div className=" bg-blue-300 border border-zinc-300 p-2 absolute top-0 left-0 w-full ">
                 {image['name']}
               </div>
@@ -79,4 +73,4 @@ export default () => {
       <Footer title="回到日历" />
     </div>
   );
-};
+}

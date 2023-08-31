@@ -1,14 +1,16 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import Headline from '../Headline';
 import Footer from '../Footer';
 import WaveSurfer from 'wavesurfer.js';
+import Timeline from 'wavesurfer.js/dist/plugins/timeline';
 
 // Import React hooks
 import { useRef, useState, useEffect, useCallback } from 'react';
 
-export default () => {
+export default function Detail() {
   const router = useRouter();
 
   const audio_url =
@@ -50,7 +52,7 @@ export default () => {
     // On play button click
     const onPlayClick = useCallback(() => {
       console.log('isReady = ', isReady);
-      if (isReady) {
+      if (wavesurfer && wavesurfer.getDuration()) {
         wavesurfer.isPlaying() ? wavesurfer.pause() : wavesurfer.play();
       }
     }, [wavesurfer]);
@@ -67,7 +69,7 @@ export default () => {
         wavesurfer.on('play', () => {
           console.log('is playing');
           setIsPlaying(true);
-          console.log('isPlaying = ', isPlaying);
+          // console.log('isPlaying = ', isPlaying);
         }),
         wavesurfer.on('pause', () => {
           console.log('paused');
@@ -96,8 +98,10 @@ export default () => {
           <p>{isPlaying ? '暂停' : '播放'}</p>
         </div>
 
-        <div className=" min-h-fit flex-grow" ref={containerRef} />
-
+        <div className="flex-grow flex items-center">
+          <div className="">{!isReady && 'Loading...'}</div>
+          <div className="flex-grow" ref={containerRef} />
+        </div>
         {/* <p>Seconds played: {currentTime}</p> */}
       </div>
     );
@@ -108,10 +112,10 @@ export default () => {
       <Headline title="段落顺序：ABABCAB" />
 
       <div className="mt-16">
-        <img src="/images/1.png" alt="歌谱图片" className="max-w-full h-auto" />
+        <img src="/images/2.png" alt="歌谱图片" className="max-w-full h-auto" />
       </div>
 
-      <div className=" pt-60"></div>
+      <div className=" pt-40"></div>
 
       {/* <div className="container mx-auto max-w-screen-sm bg-zinc-300 p-5 fixed bottom-32 text-xl">
         段落顺序：ABABCAB
@@ -122,7 +126,7 @@ export default () => {
           {/* <div className="p-5 text-center">上一首</div> */}
 
           <WaveSurferPlayer
-            height={80}
+            height={60}
             waveColor="rgb(200, 0, 200)"
             progressColor="rgb(100, 0, 100)"
             url={audio_url}
@@ -136,4 +140,4 @@ export default () => {
       <Footer title="回到歌曲列表" />
     </div>
   );
-};
+}
