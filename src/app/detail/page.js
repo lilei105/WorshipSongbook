@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import Headline from '../Headline';
-import Footer from '../Footer';
-import WaveSurfer from 'wavesurfer.js';
-import Timeline from 'wavesurfer.js/dist/plugins/timeline';
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Headline from "../Headline";
+import Footer from "../Footer";
+import WaveSurfer from "wavesurfer.js";
+import Timeline from "wavesurfer.js/dist/plugins/timeline";
 
 // Import React hooks
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback } from "react";
 
 export default function Detail() {
   const router = useRouter();
 
   const audio_url =
-    'http://1253489749.vod2.myqcloud.com/9d4470b6vodcq1253489749/7cf9d72e5576678020597380155/iIaFmFC1RmUA.mp3';
+    "http://1253489749.vod2.myqcloud.com/9d4470b6vodcq1253489749/7cf9d72e5576678020597380155/iIaFmFC1RmUA.mp3";
 
   // WaveSurfer hook
   const useWavesurfer = (containerRef, options) => {
@@ -51,7 +51,7 @@ export default function Detail() {
 
     // On play button click
     const onPlayClick = useCallback(() => {
-      console.log('isReady = ', isReady);
+      console.log("isReady = ", isReady);
       if (wavesurfer && wavesurfer.getDuration()) {
         wavesurfer.isPlaying() ? wavesurfer.pause() : wavesurfer.play();
       }
@@ -66,20 +66,20 @@ export default function Detail() {
       setIsPlaying(false);
 
       const subscriptions = [
-        wavesurfer.on('play', () => {
-          console.log('is playing');
+        wavesurfer.on("play", () => {
+          console.log("is playing");
           setIsPlaying(true);
           // console.log('isPlaying = ', isPlaying);
         }),
-        wavesurfer.on('pause', () => {
-          console.log('paused');
+        wavesurfer.on("pause", () => {
+          console.log("paused");
           setIsPlaying(false);
         }),
-        wavesurfer.on('ready', (duration) => {
-          console.log('ready at ', duration + 's');
+        wavesurfer.on("ready", (duration) => {
+          console.log("ready at ", duration + "s");
           setIsReady(true);
         }),
-        wavesurfer.on('timeupdate', (currentTime) =>
+        wavesurfer.on("timeupdate", (currentTime) =>
           setCurrentTime(currentTime)
         ),
       ];
@@ -95,12 +95,20 @@ export default function Detail() {
           className="bg-slate-400 w-20 h-20 flex items-center justify-center text-2xl lp border-8 border-white rounded-3xl"
           onClick={onPlayClick}
         >
-          <p>{isPlaying ? '暂停' : '播放'}</p>
+          <p>{isPlaying ? "暂停" : "播放"}</p>
         </div>
 
-        <div className="flex-grow flex items-center">
-          <div className="">{!isReady && 'Loading...'}</div>
-          <div className="flex-grow" ref={containerRef} />
+        <div className="flex-grow">
+          <div className={isReady ? "hidden" : "visible text-center"}>
+            <p>正在加载，请稍候...</p>
+          </div>
+
+          <div className={isReady ? "visible flex-grow" : "hidden"} ref={containerRef} />
+
+          {/* <div className="flex-grow text-center">
+            {!isReady && "Loading..."}
+          </div>
+          <div className="flex-grow" ref={containerRef} /> */}
         </div>
         {/* <p>Seconds played: {currentTime}</p> */}
       </div>
@@ -126,7 +134,7 @@ export default function Detail() {
           {/* <div className="p-5 text-center">上一首</div> */}
 
           <WaveSurferPlayer
-            height={60}
+            height={80}
             waveColor="rgb(200, 0, 200)"
             progressColor="rgb(100, 0, 100)"
             url={audio_url}
