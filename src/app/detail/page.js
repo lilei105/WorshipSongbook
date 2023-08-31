@@ -14,7 +14,7 @@ export default function Detail() {
   const router = useRouter();
 
   const audio_url =
-    "http://1253489749.vod2.myqcloud.com/9d4470b6vodcq1253489749/7cf9d72e5576678020597380155/iIaFmFC1RmUA.mp3";
+    "https://1253489749.vod2.myqcloud.com/9d4470b6vodcq1253489749/7cf9d72e5576678020597380155/iIaFmFC1RmUA.mp3";
 
   // WaveSurfer hook
   const useWavesurfer = (containerRef, options) => {
