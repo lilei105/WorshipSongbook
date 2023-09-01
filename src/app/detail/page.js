@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import Headline from "../Headline";
-import Footer from "../Footer";
-import WaveSurfer from "wavesurfer.js";
-import Timeline from "wavesurfer.js/dist/plugins/timeline";
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import Headline from '../Headline';
+import Footer from '../Footer';
+import WaveSurfer from 'wavesurfer.js';
+import Timeline from 'wavesurfer.js/dist/plugins/timeline';
 
 // Import React hooks
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect, useCallback } from 'react';
 
 export default function Detail() {
   const router = useRouter();
 
   const audio_url =
-    "https://1253489749.vod2.myqcloud.com/9d4470b6vodcq1253489749/7cf9d72e5576678020597380155/iIaFmFC1RmUA.mp3";
+    'https://1253489749.vod2.myqcloud.com/9d4470b6vodcq1253489749/7cf9d72e5576678020597380155/iIaFmFC1RmUA.mp3';
 
   // WaveSurfer hook
   const useWavesurfer = (containerRef, options) => {
@@ -51,7 +51,7 @@ export default function Detail() {
 
     // On play button click
     const onPlayClick = useCallback(() => {
-      console.log("isReady = ", isReady);
+      console.log('isReady = ', isReady);
       if (wavesurfer && wavesurfer.getDuration()) {
         wavesurfer.isPlaying() ? wavesurfer.pause() : wavesurfer.play();
       }
@@ -66,20 +66,20 @@ export default function Detail() {
       setIsPlaying(false);
 
       const subscriptions = [
-        wavesurfer.on("play", () => {
-          console.log("is playing");
+        wavesurfer.on('play', () => {
+          console.log('is playing');
           setIsPlaying(true);
           // console.log('isPlaying = ', isPlaying);
         }),
-        wavesurfer.on("pause", () => {
-          console.log("paused");
+        wavesurfer.on('pause', () => {
+          console.log('paused');
           setIsPlaying(false);
         }),
-        wavesurfer.on("ready", (duration) => {
-          console.log("ready at ", duration + "s");
+        wavesurfer.on('ready', (duration) => {
+          console.log('ready at ', duration + 's');
           setIsReady(true);
         }),
-        wavesurfer.on("timeupdate", (currentTime) =>
+        wavesurfer.on('timeupdate', (currentTime) =>
           setCurrentTime(currentTime)
         ),
       ];
@@ -90,25 +90,26 @@ export default function Detail() {
     }, [wavesurfer]);
 
     return (
-      <div className="h-20 flex items-center">
-        <div
-          className="bg-slate-400 w-20 h-20 flex items-center justify-center text-2xl lp border-8 border-white rounded-3xl"
-          onClick={onPlayClick}
-        >
-          <p>{isPlaying ? "暂停" : "播放"}</p>
+      //播放器的布局
+      <div className="h-16 flex items-center bg-gradient-to-b from-white to-slate-300">
+        <div>
+          <div
+            className="bg-sky-400 w-12 h-12 flex items-center justify-center  mt-2 mb-2 ml-2 mr-2 rounded-3xl"
+            onClick={onPlayClick}
+          >
+            <p>{isPlaying ? '暂停' : '播放'}</p>
+          </div>
         </div>
 
-        <div className="flex-grow">
-          <div className={isReady ? "hidden" : "visible text-center"}>
+        <div className="flex-grow ">
+          <div className={isReady ? 'hidden' : 'visible text-center'}>
             <p>正在加载，请稍候...</p>
           </div>
 
-          <div className={isReady ? "visible flex-grow" : "hidden"} ref={containerRef} />
-
-          {/* <div className="flex-grow text-center">
-            {!isReady && "Loading..."}
-          </div>
-          <div className="flex-grow" ref={containerRef} /> */}
+          <div
+            className={isReady ? 'visible flex-grow' : 'hidden'}
+            ref={containerRef}
+          />
         </div>
         {/* <p>Seconds played: {currentTime}</p> */}
       </div>
@@ -116,29 +117,24 @@ export default function Detail() {
   };
 
   return (
+    //Detail页面的总布局
     <div>
       <Headline title="段落顺序：ABABCAB" />
 
-      <div className="mt-16">
-        <img src="/images/2.png" alt="歌谱图片" className="max-w-full h-auto" />
+      <div className="pt-16 pb-20">
+        <img src="/images/1.png" alt="歌谱图片" className="max-w-full h-auto" />
       </div>
-
-      <div className=" pt-40"></div>
-
-      {/* <div className="container mx-auto max-w-screen-sm bg-zinc-300 p-5 fixed bottom-32 text-xl">
-        段落顺序：ABABCAB
-      </div> */}
 
       <div className="container mx-auto max-w-screen-sm fixed bottom-16">
         <div className="container mx-auto items-center ">
           {/* <div className="p-5 text-center">上一首</div> */}
 
           <WaveSurferPlayer
-            height={80}
+            height={48}
             waveColor="rgb(200, 0, 200)"
             progressColor="rgb(100, 0, 100)"
             url={audio_url}
-            // plugins={[Timeline.create()]}
+            plugins={[Timeline.create({ height: 16 })]}
           />
 
           {/* <div className="p-5 text-center">下一首</div> */}

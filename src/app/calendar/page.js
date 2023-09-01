@@ -41,21 +41,20 @@ const Collap = ({ title }) => {
 
 export default function CalendarView() {
   return (
+    //页面总布局
     <div>
       <Headline title="选择一个日期，查看该日歌单" />
 
-      <div className="mt-20 flex justify-center pb-4 border-b-4">
+      <div className="pt-20 flex justify-center pb-2 border-b-2 border-slate-400">
         <div className="border border-gray-200">
           <Calendar locale="zh" />
         </div>
       </div>
 
-      <div className="px-4 mt-2 divide-y-2">
+      <div className="px-4 pb-20 mt-2 divide-y-2 ">
         <Collap title="2023年9月3日 主日敬拜" />
         <Collap title="2023年9月3日 祷告会" />
       </div>
-
-      <div className="mt-24"></div>
 
       <Footer title="回到首页" />
     </div>

@@ -52,7 +52,7 @@ export default function SongList() {
     <div>
       <Headline title="2023年9月3日 主日敬拜" />
 
-      <div className="mt-16 grid grid-cols-2">
+      <div className="pt-16 grid grid-cols-2 pb-20">
         {images.map((image, index) => (
           <div key={index} className=" relative">
             <Link href={'/detail'}>
@@ -67,8 +67,6 @@ export default function SongList() {
           </div>
         ))}
       </div>
-
-      <div className=" pt-20"></div>
 
       <Footer title="回到日历" />
     </div>
