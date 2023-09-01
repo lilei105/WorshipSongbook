@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Song {
+  id          Int       @id(map: "song_pk") @default(autoincrement())
+  name        String    @db.VarChar
+  by          String?   @db.VarChar
+  note        String?   @db.VarChar
+  sheet_url   String?   @db.VarChar
+  audio_url   String?   @db.VarChar
+  songlist_id Int?
+  Songlist    Songlist? @relation(fields: [songlist_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "song_fk")
+}
+
+model Songlist {
+  id   Int       @id(map: "songlist_pk") @default(autoincrement())
+  name String?   @db.VarChar
+  date DateTime? @db.Date
+  Song Song[]
+}
