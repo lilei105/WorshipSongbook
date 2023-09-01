@@ -15,8 +15,8 @@ const CustomComponent = ({ title }) => {
 
   return (
     <Link href={linkUrl}>
-      <div className="container mx-auto max-w-screen-sm bg-teal-300 p-4 items-center fixed bottom-0 z-10">
-        <div className=" text-slate-900 text-xl text-center">{title}</div>
+      <div className="container mx-auto max-w-screen-sm p-4 items-center fixed bottom-0 z-10 bg-sky-300">
+        <div className=" text-slate-900 text-2xl text-center ">{title}</div>
       </div>
     </Link>
   );
