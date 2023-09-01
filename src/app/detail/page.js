@@ -11,6 +11,7 @@ import Timeline from 'wavesurfer.js/dist/plugins/timeline';
 import { useRef, useState, useEffect, useCallback } from 'react';
 
 export default function Detail() {
+  const isBrowser = typeof window !== 'undefined';
   const router = useRouter();
 
   const audio_url =
@@ -116,7 +117,7 @@ export default function Detail() {
     );
   };
 
-  return (
+  return isBrowser ? (
     //Detail页面的总布局
     <div>
       <Headline title="段落顺序：ABABCAB" />
@@ -143,5 +144,5 @@ export default function Detail() {
 
       <Footer title="回到歌曲列表" />
     </div>
-  );
+  ) : null;
 }
