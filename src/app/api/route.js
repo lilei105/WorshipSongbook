@@ -1,11 +1,14 @@
-import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export default async function handle(req, res) {
-  console.log('prisma is working');
-  const songs = await prisma.songs.findMany();
+export async function GET(req) {
+  console.log("prisma is working");
+
+  
+  console.log("param = ", req.nextUrl.searchParams.get('a'));
+  const songs = await prisma.song.findMany();
 
   return NextResponse.json({ data: songs });
 }

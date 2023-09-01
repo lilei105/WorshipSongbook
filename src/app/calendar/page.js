@@ -47,7 +47,7 @@ export default function CalendarView() {
 
   // 初始化执行
   useEffect(() => {
-    fetch('/api')
+    fetch('/api?a=2')
       .then((res) => res.json())
       .then((data) => {
         console.log({ data });
