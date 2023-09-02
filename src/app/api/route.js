@@ -4,11 +4,20 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export async function GET(req) {
-  console.log("prisma is working");
+  const date = req.nextUrl.searchParams.get("date");
 
-  
-  console.log("param = ", req.nextUrl.searchParams.get('a'));
-  const songs = await prisma.song.findMany();
+  const songListsAndSongs = await prisma.songlist.findMany({
+    where: {
+      date: { equals: new Date(date) },
+    },
+    include: {
+      songs: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
 
-  return NextResponse.json({ data: songs });
+  return NextResponse.json({ data: songListsAndSongs });
 }

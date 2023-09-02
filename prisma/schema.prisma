@@ -19,8 +19,8 @@ model Song {
 }
 
 model Songlist {
-  id   Int       @id(map: "songlist_pk") @default(autoincrement())
-  name String?   @db.VarChar
-  date DateTime? @db.Date
-  Song Song[]
+  id    Int       @id(map: "songlist_pk") @default(autoincrement())
+  name  String?   @db.VarChar
+  date  DateTime? @db.Date
+  songs Song[]
 }
