@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 export async function GET(req) {
   const date = req.nextUrl.searchParams.get("date");
 
-  const songListsAndSongs = await prisma.songlist.findMany({
+  const songlistsAndSongs = await prisma.songlist.findMany({
     where: {
       date: { equals: new Date(date) },
     },
@@ -19,5 +19,5 @@ export async function GET(req) {
     },
   });
 
-  return NextResponse.json({ data: songListsAndSongs });
+  return NextResponse.json({ data: songlistsAndSongs });
 }
