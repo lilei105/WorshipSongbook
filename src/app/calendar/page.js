@@ -14,15 +14,16 @@ const Collapsible = dynamic(() => import("react-collapsible"), {
   ssr: false,
 });
 
-//可折叠的内容区
+//根据API传来的数据生成多个可折叠的内容
 const CollapContent = ({ content }) => {
   function isNullOrEmpty(value) {
     return value === null || value === undefined || value === "";
   }
 
-  console.log("content is: ", content);
-  let title = "test";
-  let content0 = [];
+  console.log("content fetched from api is: ", content);
+  let title = "";
+  let songlistid = 0;
+  let songs = [];
   let str = "";
 
   if (
@@ -30,26 +31,31 @@ const CollapContent = ({ content }) => {
     isNullOrEmpty(content["data"]) ||
     content["data"].length < 1
   ) {
-    return CollapItem("今日没有数据", []);
+    return CollapItem("今日没有数据", 0, [], 0);
   }
 
+  //从json对象中取出数组
   content = content["data"];
+  console.log("updated content is: ", content);
 
-  console.log("now content is: ", content);
-
-  // content.map((list, index) => "");
+  //有多少个list就生成多少串Collapsible，最后一起返回
   function buildData(content) {
     return content.map(
       (list, index) => (
-        (title =
-          dayjs(list.value).format("YYYY[年]MM[月]DD[日]") + " " + list.name),
-        console.log(title),
-        (content0 = list["songs"]),
-        CollapItem(title, content0, index)
+        (title = " " + list.name),
+        // console.log(title),
+        (songlistid = list.id),
+        (songs = list["songs"]),
+        // console.log("title = ", title),
+        // console.log("songlistid = ", songlistid),
+        // console.log("songs = ", songs),
+        // console.log("index = ", index),
+
+        CollapItem(title, songlistid, songs, index)
       )
     );
   }
-  let content1 = "";
+
   str = buildData(content);
   console.log(str);
 
@@ -57,9 +63,9 @@ const CollapContent = ({ content }) => {
 };
 
 //只管按可折叠的格式显示标题和内容
-const CollapItem = (title, content, index) => (
+const CollapItem = (title, songlistid, songs, index) => (
   <Collapsible
-    open={true}
+    open={index == 0 ? true : false}
     className=" bg-slate-500 text-xl p-2 "
     openedClassName="bg-slate-300"
     transitionTime={100}
@@ -69,14 +75,13 @@ const CollapItem = (title, content, index) => (
     triggerOpenedClassName=" bg-slate-500 text-xl p-2 "
     key={index}
   >
-    <Link href="/list">
+    <Link href={"/list?songlistid=" + songlistid}>
       <div className="ml-4">
-        {content.map((item, index) => (
+        {songs.map((item, index) => (
           <p key={index}>
             {index + 1}. {item.name}
           </p>
         ))}
-        {/* {"test"} */}
       </div>
     </Link>
   </Collapsible>
@@ -97,7 +102,7 @@ export default function CalendarView() {
   //使用useEffect，每当selectedDate改变时触发api查询，
   //并把api返回的结果以json形式更新到data里
   useEffect(() => {
-    fetch(`/api?date=${selectedDate}`)
+    fetch(`/api/getByDate?date=${selectedDate}`)
       .then((res) => res.json())
 
       .then((data) => {
