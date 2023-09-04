@@ -1,72 +1,60 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
-import Headline from "../Headline";
-import Footer from "../Footer";
-import dynamic from "next/dynamic";
-import Link from "next/link";
-import dayjs from "dayjs";
+import { useState, useEffect } from 'react';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
+import Headline from '../Headline';
+import Footer from '../Footer';
+import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import dayjs from 'dayjs';
+import axios from 'axios';
 // import Collapsible from 'react-collapsible';
 
-const Collapsible = dynamic(() => import("react-collapsible"), {
+const Collapsible = dynamic(() => import('react-collapsible'), {
   ssr: false,
 });
 
+function isNullOrEmpty(value) {
+  return value === null || value === undefined || value === '';
+}
+
 //根据API传来的数据生成多个可折叠的内容
 const CollapContent = ({ content }) => {
-  function isNullOrEmpty(value) {
-    return value === null || value === undefined || value === "";
-  }
-
-  console.log("content fetched from api is: ", content);
-  let title = "";
-  let songlistid = 0;
+  // console.log('content fetched from api is: ', content);
+  let title = '';
+  let songlistId = 0;
   let songs = [];
-  let str = "";
+  let str = '';
 
-  if (
-    isNullOrEmpty(content) ||
-    isNullOrEmpty(content["data"]) ||
-    content["data"].length < 1
-  ) {
-    return CollapItem("今日没有数据", 0, [], 0);
+  if (isNullOrEmpty(content) || content.length < 1) {
+    return CollapItem('今日没有数据', 0, [], 0);
   }
-
-  //从json对象中取出数组
-  content = content["data"];
-  console.log("updated content is: ", content);
 
   //有多少个list就生成多少串Collapsible，最后一起返回
   function buildData(content) {
     return content.map(
       (list, index) => (
-        (title = " " + list.name),
+        (title = dayjs(list.date).format('YYYY年MM月DD日') + ' ' + list.name),
         // console.log(title),
-        (songlistid = list.id),
-        (songs = list["songs"]),
-        // console.log("title = ", title),
-        // console.log("songlistid = ", songlistid),
-        // console.log("songs = ", songs),
-        // console.log("index = ", index),
-
-        CollapItem(title, songlistid, songs, index)
+        (songlistId = list.id),
+        (songs = list['songs']),
+        CollapItem(title, songlistId, songs, index)
       )
     );
   }
 
-  str = buildData(content);
-  console.log(str);
+  // str = buildData(content);
+  // console.log(str);
 
-  return str;
+  return buildData(content);
 };
 
 //只管按可折叠的格式显示标题和内容
-const CollapItem = (title, songlistid, songs, index) => (
+const CollapItem = (title, songlistId, songs, index) => (
   <Collapsible
     open={index == 0 ? true : false}
-    className=" bg-slate-500 text-xl p-2 "
+    className=" bg-slate-500 p-2 "
     openedClassName="bg-slate-300"
     transitionTime={100}
     trigger={<div>&#10148; {title}</div>}
@@ -75,7 +63,7 @@ const CollapItem = (title, songlistid, songs, index) => (
     triggerOpenedClassName=" bg-slate-500 text-xl p-2 "
     key={index}
   >
-    <Link href={"/list?songlistid=" + songlistid}>
+    <Link href={'/list?listId=' + songlistId + '&title=' + title}>
       <div className="ml-4">
         {songs.map((item, index) => (
           <p key={index}>
@@ -89,34 +77,29 @@ const CollapItem = (title, songlistid, songs, index) => (
 
 export default function CalendarView() {
   const [selectedDate, setSelectedDate] = useState(
-    dayjs(new Date()).format("YYYY-MM-DD")
+    dayjs(new Date()).format('YYYY-MM-DD')
   );
   const [data, setData] = useState();
 
   //处理鼠标点击的事件，将所选日期格式化为YYYY-MM-DD格式，
   //改变selectedDate，触发useEffect
   function handleSelectDateChanged(value) {
-    setSelectedDate(dayjs(value).format("YYYY-MM-DD"));
+    setSelectedDate(dayjs(value).format('YYYY-MM-DD'));
   }
 
   //使用useEffect，每当selectedDate改变时触发api查询，
   //并把api返回的结果以json形式更新到data里
   useEffect(() => {
-    fetch(`/api/getByDate?date=${selectedDate}`)
-      .then((res) => res.json())
-
-      .then((data) => {
-        console.log("updating data: ", data);
+    axios
+      .get(`/api/getByDate?date=${selectedDate}`)
+      .then((res) => {
+        let data = isNullOrEmpty(res.data.data) ? [] : res.data.data;
+        // console.log('updating data: ', data);
 
         setData(data);
       })
       .catch((error) => console.error(error));
   }, [selectedDate]);
-
-  // if (data && data.data && data.data[0]) {
-  //   title = data.data[0].date;
-  //   content = data.data[0].name;
-  // }
 
   return (
     <div>
