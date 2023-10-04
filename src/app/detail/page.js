@@ -1,21 +1,32 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import Headline from '../Headline';
-import Footer from '../Footer';
-import WaveSurfer from 'wavesurfer.js';
-import Timeline from 'wavesurfer.js/dist/plugins/timeline';
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Headline from "../Headline";
+import Footer from "../Footer";
+import WaveSurfer from "wavesurfer.js";
+import Timeline from "wavesurfer.js/dist/plugins/timeline";
 
 // Import React hooks
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback } from "react";
+
+function isNullOrEmpty(value) {
+  return value === null || value === undefined || value === "";
+}
 
 export default function Detail() {
-  const isBrowser = typeof window !== 'undefined';
+  const isBrowser = typeof window !== "undefined";
   const router = useRouter();
 
-  const audio_url =
-    'https://1253489749.vod2.myqcloud.com/9d4470b6vodcq1253489749/7cf9d72e5576678020597380155/iIaFmFC1RmUA.mp3';
+  // const song_title = window.sessionStorage.getItem("title");
+  const song_name = window.sessionStorage.getItem("song_name");
+  const audio_url = window.sessionStorage.getItem("audio_url");
+  const sheet_url = window.sessionStorage.getItem("sheet_url");
+  const song_note = window.sessionStorage.getItem("song_note");
+
+  console.log("song_note: ", song_note);
+
+  // const audio_url = "https://1253489749.vod2.myqcloud.com/9d4470b6vodcq1253489749/7cf9d72e5576678020597380155/iIaFmFC1RmUA.mp3";
 
   // WaveSurfer hook
   const useWavesurfer = (containerRef, options) => {
@@ -52,7 +63,7 @@ export default function Detail() {
 
     // On play button click
     const onPlayClick = useCallback(() => {
-      console.log('isReady = ', isReady);
+      console.log("isReady = ", isReady);
       if (wavesurfer && wavesurfer.getDuration()) {
         wavesurfer.isPlaying() ? wavesurfer.pause() : wavesurfer.play();
       }
@@ -67,20 +78,20 @@ export default function Detail() {
       setIsPlaying(false);
 
       const subscriptions = [
-        wavesurfer.on('play', () => {
-          console.log('is playing');
+        wavesurfer.on("play", () => {
+          console.log("is playing");
           setIsPlaying(true);
           // console.log('isPlaying = ', isPlaying);
         }),
-        wavesurfer.on('pause', () => {
-          console.log('paused');
+        wavesurfer.on("pause", () => {
+          console.log("paused");
           setIsPlaying(false);
         }),
-        wavesurfer.on('ready', (duration) => {
-          console.log('ready at ', duration + 's');
+        wavesurfer.on("ready", (duration) => {
+          console.log("ready, song length = ", duration + "s");
           setIsReady(true);
         }),
-        wavesurfer.on('timeupdate', (currentTime) =>
+        wavesurfer.on("timeupdate", (currentTime) =>
           setCurrentTime(currentTime)
         ),
       ];
@@ -98,17 +109,17 @@ export default function Detail() {
             className="bg-sky-400 w-12 h-12 flex items-center justify-center  mt-2 mb-2 ml-2 mr-2 rounded-3xl"
             onClick={onPlayClick}
           >
-            <p>{isPlaying ? '暂停' : '播放'}</p>
+            <p>{isPlaying ? "暂停" : "播放"}</p>
           </div>
         </div>
 
         <div className="flex-grow ">
-          <div className={isReady ? 'hidden' : 'visible text-center'}>
+          <div className={isReady ? "hidden" : "visible text-center"}>
             <p>正在加载，请稍候...</p>
           </div>
 
           <div
-            className={isReady ? 'visible flex-grow' : 'hidden'}
+            className={isReady ? "visible flex-grow" : "hidden"}
             ref={containerRef}
           />
         </div>
@@ -117,13 +128,13 @@ export default function Detail() {
     );
   };
 
-  return isBrowser ? (
+  return (
     //Detail页面的总布局
     <div>
-      <Headline title="段落顺序：ABABCAB" />
+      <Headline title={isNullOrEmpty(song_note) ? song_name : song_note} />
 
       <div className="pt-16 pb-20">
-        <img src="/images/1.png" alt="歌谱图片" className="max-w-full h-auto" />
+        <img src={sheet_url} alt="歌谱图片" className="max-w-full h-auto" />
       </div>
 
       <div className="container mx-auto max-w-screen-sm fixed bottom-16">
@@ -144,5 +155,5 @@ export default function Detail() {
 
       <Footer title="回到歌曲列表" />
     </div>
-  ) : null;
+  );
 }
