@@ -69,25 +69,50 @@ function handleClick(e, songlistId, title) {
 const CollapItem = (title, songlistId, songs, index) => (
   <Collapsible
     open={index == 0 ? true : false}
-    className=" bg-slate-500 p-2 "
-    openedClassName="bg-slate-300"
-    transitionTime={100}
-    trigger={<div>&#10148; {title}</div>}
-    triggerWhenOpen={<div>&#11167; {title}</div>}
+    className="card mb-4 overflow-hidden"
+    openedClassName="card mb-4"
+    transitionTime={200}
+    trigger={
+      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium cursor-pointer hover:from-blue-600 hover:to-purple-700 transition-all duration-200">
+        <span className="flex items-center gap-2">
+          <span className="text-lg">📅</span>
+          {title}
+        </span>
+        <span className="text-xl transition-transform duration-200" 
+              style={{ transform: 'rotate(0deg)' }}
+              data-collapsible-trigger>▼</span>
+      </div>
+    }
+    triggerWhenOpen={
+      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-600 to-purple-700 text-white font-medium cursor-pointer">
+        <span className="flex items-center gap-2">
+          <span className="text-lg">📅</span>
+          {title}
+        </span>
+        <span className="text-xl transition-transform duration-200" 
+              style={{ transform: 'rotate(180deg)' }}
+              data-collapsible-trigger>▼</span>
+      </div>
+    }
     triggerTagName="div"
-    triggerOpenedClassName=" bg-slate-500 text-xl p-2 "
     key={index}
   >
-    {/* <Link href={'/list?listId=' + songlistId + '&title=' + title}> */}
-    <Link href="/list" onClick={(e) => handleClick(e, songlistId, title)}>
-      <div className="ml-4">
-        {songs.map((item, index) => (
-          <p key={index}>
-            {index + 1}. {item.name}
-          </p>
-        ))}
-      </div>
-    </Link>
+    <div className="p-6 bg-white/50 backdrop-blur-sm">
+      <Link href="/list" onClick={(e) => handleClick(e, songlistId, title)}>
+        <div className="grid gap-3">
+          {songs.map((item, index) => (
+            <div key={index} className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/80 transition-colors duration-200 cursor-pointer group">
+              <span className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                {index + 1}
+              </span>
+              <span className="text-slate-700 font-medium group-hover:text-purple-600 transition-colors">
+                {item.name}
+              </span>
+            </div>
+          ))}
+        </div>
+      </Link>
+    </div>
   </Collapsible>
 );
 
@@ -118,15 +143,45 @@ export default function CalendarView() {
   }, [selectedDate]);
 
   return (
-    <div>
-      <Headline title="选择一个日期，查看该日歌单" />
-      <div className="pt-20 flex justify-center pb-2 border-b-2 border-slate-400">
-        <Calendar locale="zh" onChange={handleSelectDateChanged} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+      <Headline title="选择日期查看歌单" />
+      
+      <div className="container mx-auto px-4 pt-24 pb-8">
+        <div className="max-w-2xl mx-auto mb-8">
+          <div className="card p-6">
+            <h2 className="text-2xl font-bold text-center mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              选择日期
+            </h2>
+            <div className="flex justify-center">
+              <Calendar 
+                locale="zh" 
+                onChange={handleSelectDateChanged} 
+                className="react-calendar-modern"
+              />
+            </div>
+          </div>
+        </div>
+        
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-6">
+            <h3 className="text-xl font-semibold text-slate-800 mb-4">
+              {selectedDate} 的歌单
+            </h3>
+          </div>
+          
+          <div className="space-y-4">
+            <CollapContent content={data} />
+          </div>
+        </div>
       </div>
-      <div className="px-4 pb-20 mt-2 divide-y-2 ">
-        <CollapContent content={data} />
+      
+      <div className="text-center py-8">
+        <Link href="/" 
+              className="inline-flex items-center gap-2 text-slate-600 hover:text-purple-600 transition-colors"
+        >
+          <span>←</span> 回到首页
+        </Link>
       </div>
-      <Footer title="回到首页" />
     </div>
   );
 }
