@@ -3,28 +3,138 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Headline from "../Headline";
-import Footer from "../Footer";
+import Link from "next/link";
 import WaveSurfer from "wavesurfer.js";
 import Timeline from "wavesurfer.js/dist/plugins/timeline";
 
 // Import React hooks
 import { useRef, useState, useEffect, useCallback } from "react";
 
+// 自定义图片组件，专门处理歌谱图片
+const SafeImage = ({ src, alt, className, style }) => {
+  const [imageSrc, setImageSrc] = useState(src);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setImageSrc(src);
+    setHasError(false);
+  }, [src]);
+
+  const handleError = () => {
+    setHasError(true);
+  };
+
+  // 直接显示图片，让浏览器处理错误
+  if (src && src !== 'null' && src !== 'undefined') {
+    return (
+      <img 
+        src={src}
+        alt={alt}
+        className={className}
+        style={style}
+        onError={handleError}
+      />
+    );
+  }
+
+  return (
+    <div className={`${className} flex items-center justify-center bg-slate-100 rounded-lg`}
+          style={style}>
+      <div className="text-center">
+        <div className="w-24 h-24 bg-gradient-to-br from-slate-200 to-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span className="text-3xl">🎵</span>
+        </div>
+        <h3 className="text-xl font-semibold text-slate-700 mb-2">暂无歌谱</h3>
+        <p className="text-slate-500">这首诗歌暂时还没有上传歌谱</p>
+      </div>
+    </div>
+  );
+};
+
+// 音频播放器空值处理
+const SafeAudioPlayer = ({ url }) => {
+  if (!url || url === 'null' || url === 'undefined') {
+    return (
+      <div className="card p-4">
+        <h3 className="text-lg font-semibold text-slate-800 mb-4">音频播放</h3>
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-gradient-to-br from-amber-200 to-amber-300 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-lg">🔇</span>
+            </div>
+            <div>
+              <h4 className="text-amber-700 font-medium">暂无音频</h4>
+              <p className="text-amber-600 text-sm">这首诗歌暂时还没有上传音频文件</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="card p-4">
+      <h3 className="text-lg font-semibold text-slate-800 mb-4">音频播放</h3>
+      <WaveSurferPlayer
+        height={48}
+        waveColor="rgb(59, 130, 246)"
+        progressColor="rgb(139, 92, 246)"
+        url={url}
+        plugins={[Timeline.create({ height: 16 })]}
+      />
+    </div>
+  );
+};
+
+// 增强的空值处理工具
 function isNullOrEmpty(value) {
-  return value === null || value === undefined || value === "";
+  return value === null || value === undefined || value === "" || value === "null" || value === "undefined";
+}
+
+// 安全获取值的工具函数
+function safeValue(value, defaultValue = "") {
+  return isNullOrEmpty(value) ? defaultValue : value;
+}
+
+// 安全URL检查工具 - 修复过于严格的验证
+function safeUrl(url) {
+  if (!url || isNullOrEmpty(url)) return null;
+  
+  // 放宽验证，允许更多格式的URL
+  if (typeof url === 'string' && url.trim().length > 0) {
+    // 允许http/https/相对路径/绝对路径等所有有效URL
+    const trimmedUrl = url.trim();
+    if (trimmedUrl !== 'null' && trimmedUrl !== 'undefined') {
+      return trimmedUrl;
+    }
+  }
+  return null;
 }
 
 export default function Detail() {
   const isBrowser = typeof window !== "undefined";
   const router = useRouter();
 
-  // const song_title = window.sessionStorage.getItem("title");
-  const song_name = window.sessionStorage.getItem("song_name");
-  const audio_url = window.sessionStorage.getItem("audio_url");
-  const sheet_url = window.sessionStorage.getItem("sheet_url");
-  const song_note = window.sessionStorage.getItem("song_note");
+  // 安全获取所有sessionStorage值
+  const [songData, setSongData] = useState({
+    song_name: "",
+    audio_url: "",
+    sheet_url: "",
+    song_note: ""
+  });
 
-  console.log("song_note: ", song_note);
+  useEffect(() => {
+    if (isBrowser) {
+      setSongData({
+        song_name: safeValue(window.sessionStorage.getItem("song_name"), "未知歌曲"),
+        audio_url: safeUrl(window.sessionStorage.getItem("audio_url")),
+        sheet_url: safeUrl(window.sessionStorage.getItem("sheet_url")),
+        song_note: safeValue(window.sessionStorage.getItem("song_note"), "")
+      });
+    }
+  }, [isBrowser]);
+
+  const { song_name, audio_url, sheet_url, song_note } = songData;
 
   // const audio_url = "https://1253489749.vod2.myqcloud.com/9d4470b6vodcq1253489749/7cf9d72e5576678020597380155/iIaFmFC1RmUA.mp3";
 
@@ -130,30 +240,30 @@ export default function Detail() {
 
   return (
     //Detail页面的总布局
-    <div>
-      <Headline title={isNullOrEmpty(song_note) ? song_name : song_note} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+      <Headline title={song_note ? `${song_name} - ${song_note}` : song_name || "歌曲详情"} />
 
-      <div className="pt-16 pb-20">
-        <img src={sheet_url} alt="歌谱图片" className="max-w-full h-auto" />
-      </div>
+      <div className="container mx-auto px-4 pt-24 pb-8">
 
-      <div className="container mx-auto max-w-screen-sm fixed bottom-16">
-        <div className="container mx-auto items-center ">
-          {/* <div className="p-5 text-center">上一首</div> */}
-
-          <WaveSurferPlayer
-            height={48}
-            waveColor="rgb(200, 0, 200)"
-            progressColor="rgb(100, 0, 100)"
-            url={audio_url}
-            plugins={[Timeline.create({ height: 16 })]}
+        <div className="mb-6">
+          <SafeImage 
+            src={sheet_url}
+            alt={`${song_name} 歌谱`}
+            className="w-full h-auto object-contain rounded-2xl shadow-lg"
+            style={{ maxHeight: 'calc(100vh - 180px)' }}
           />
-
-          {/* <div className="p-5 text-center">下一首</div> */}
         </div>
+
+        <SafeAudioPlayer url={audio_url} />
       </div>
 
-      <Footer title="回到歌曲列表" />
+      <div className="text-center py-8">
+        <Link href="/list" 
+              className="inline-flex items-center gap-2 text-slate-600 hover:text-purple-600 transition-colors"
+        >
+          <span>←</span> 返回歌曲列表
+        </Link>
+      </div>
     </div>
   );
 }
