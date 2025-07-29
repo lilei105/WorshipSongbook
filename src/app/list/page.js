@@ -48,7 +48,6 @@ export default function ShowSongsInList() {
 
       <div className="container mx-auto px-4 pt-24 pb-8">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-slate-800 mb-2">{title}</h2>
           <p className="text-slate-600">共 {songs.length} 首诗歌</p>
         </div>
 
