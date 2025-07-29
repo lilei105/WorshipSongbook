@@ -258,11 +258,18 @@ export default function Detail() {
       </div>
 
       <div className="text-center py-8">
-        <Link href="/list" 
-              className="inline-flex items-center gap-2 text-slate-600 hover:text-purple-600 transition-colors"
-        >
-          <span>←</span> 返回歌曲列表
-        </Link>
+        <div className="flex justify-center gap-8">
+          <Link href="/list" 
+                className="inline-flex items-center gap-2 text-slate-600 hover:text-purple-600 transition-colors"
+          >
+            <span>←</span> 返回歌曲列表
+          </Link>
+          <Link href="/" 
+                className="inline-flex items-center gap-2 text-slate-600 hover:text-purple-600 transition-colors"
+          >
+            <span>←</span> 返回首页
+          </Link>
+        </div>
       </div>
     </div>
   );

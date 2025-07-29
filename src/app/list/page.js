@@ -119,11 +119,19 @@ export default function ShowSongsInList() {
       </div>
 
       <div className="text-center py-8">
-        <Link href="/calendar" 
-              className="inline-flex items-center gap-2 text-slate-600 hover:text-purple-600 transition-colors"
-        >
-          <span>←</span> 返回日历
-        </Link>
+        <div className="flex justify-center gap-8">
+          <Link href="/calendar" 
+                className="inline-flex items-center gap-2 text-slate-600 hover:text-purple-600 transition-colors"
+          >
+            <span>←</span> 返回日历
+          </Link>
+          
+          <Link href="/" 
+                className="inline-flex items-center gap-2 text-slate-600 hover:text-purple-600 transition-colors"
+          >
+            <span>←</span> 返回首页
+          </Link>
+        </div>
       </div>
     </div>
   );
