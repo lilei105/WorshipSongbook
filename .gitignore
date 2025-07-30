@@ -33,3 +33,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude session files
+.claude/
+2025-*-this-session-is-being-continued-from-a-previous-*.txt
