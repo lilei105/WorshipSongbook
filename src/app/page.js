@@ -60,10 +60,13 @@ export default function Home() {
                 </button>
               </Link>
               
-              <button className="btn-secondary flex items-center gap-3 px-8 py-4 text-lg">
-                <Plus className="w-5 h-5" />
-                创建歌单
-              </button>
+              <Link href="/create-songlist" className="group">
+                <button className="btn-secondary flex items-center gap-3 px-8 py-4 text-lg">
+                  <Plus className="w-5 h-5" />
+                  创建歌单
+                  <span className="group-hover:translate-x-1 transition-transform">→</span>
+                </button>
+              </Link>
             </div>
           </div>
         </div>
