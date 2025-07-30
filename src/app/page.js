@@ -38,7 +38,7 @@ export default function Home() {
                   <Music className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2 text-slate-800">完整歌库</h3>
-                <p className="text-slate-600 text-sm">歌谱、音频、注释一站式管理</p>
+                <p className="text-slate-600 text-sm">歌谱、音频、备注一站式管理</p>
               </div>
               
               <div className="card p-6 text-center animate-scale-in" style={{ animationDelay: '0.3s' }}>
