@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-const CustomComponent = ({ title }) => {
+const FooterNavigation = ({ title }) => {
   let linkUrl;
 
   if (title === '回到首页') {
@@ -22,4 +22,4 @@ const CustomComponent = ({ title }) => {
   );
 };
 
-export default CustomComponent;
+export default FooterNavigation;

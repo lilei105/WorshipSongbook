@@ -12,12 +12,19 @@ function isNullOrEmpty(value) {
   return value === null || value === undefined || value === "";
 }
 
-function handleClick(e, song_name, audio_url, sheet_url, song_note) {
+function storeSongDetails(e, songName, audioUrl, sheetUrl, songNote) {
   if (!isNullOrEmpty(window)) {
-    window.sessionStorage.setItem("song_name", song_name);
-    window.sessionStorage.setItem("audio_url", audio_url);
-    window.sessionStorage.setItem("sheet_url", sheet_url);
-    window.sessionStorage.setItem("song_note", song_note);
+    window.sessionStorage.setItem("song_name", songName);
+    window.sessionStorage.setItem("audio_url", audioUrl);
+    window.sessionStorage.setItem("sheet_url", sheetUrl);
+    window.sessionStorage.setItem("song_note", songNote);
+    
+    console.log('Stored song details:', {
+      songName,
+      audioUrl,
+      sheetUrl,
+      songNote
+    });
   } else {
     console.log("Window is not defined");
   }
@@ -32,13 +39,20 @@ export default function ShowSongsInList() {
 
   if (isBrowser) {
     useEffect(() => {
-      axios
-        .get(`/api/getByList?listId=${listId}`)
-        .then((res) => {
-          console.log("songs: ", res.data);
-          setSongs(res.data["data"]);
-        })
-        .catch((error) => console.error(error));
+      console.log('List page - songlistId from sessionStorage:', listId);
+      console.log('List page - title from sessionStorage:', title);
+      
+      if (listId) {
+        axios
+          .get(`/api/getByList?listId=${listId}`)
+          .then((res) => {
+            console.log("List page - API response:", res.data);
+            setSongs(res.data.data || []);
+          })
+          .catch((error) => console.error(error));
+      } else {
+        console.log('List page - no songlistId found in sessionStorage');
+      }
     }, []);
   }
 
@@ -56,20 +70,27 @@ export default function ShowSongsInList() {
             <div key={index} className="card group cursor-pointer animate-scale-in"
                  style={{ animationDelay: `${index * 0.1}s` }}>
               <Link href={"/detail"}
-                    onClick={(e) =>
-                      handleClick(
+                    onClick={(e) => {
+                      console.log('List page - storing individual song:', {
+                        name: song.name,
+                        audio_url: song.audio_url,
+                        sheet_url: song.sheet_url,
+                        note: song.note
+                      });
+                      storeSongDetails(
                         e,
-                        song["name"],
-                        song["audio_url"],
-                        song["sheet_url"],
-                        song["note"]
-                      )
+                        song.name,
+                        song.audio_url,
+                        song.sheet_url,
+                        song.note
+                      );
+                    }
                     }
               >
                 <div className="aspect-[3/4] relative overflow-hidden rounded-t-2xl">
                   <img 
-                    src={song["sheet_url"]} 
-                    alt={song["name"]}
+                    src={song.sheet_url} 
+                    alt={song.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -83,15 +104,15 @@ export default function ShowSongsInList() {
                 
                 <div className="p-4">
                   <h3 className="text-lg font-semibold text-slate-800 mb-1 group-hover:text-purple-600 transition-colors">
-                    {song["name"]}
+                    {song.name}
                   </h3>
                   
-                  {song["by"] && (
-                    <p className="text-sm text-slate-600 mb-2">演唱者: {song["by"]}</p>
+                  {song.by && (
+                    <p className="text-sm text-slate-600 mb-2">演唱者: {song.by}</p>
                   )}
                   
-                  {song["note"] && (
-                    <p className="text-xs text-slate-500 line-clamp-2">{song["note"]}</p>
+                  {song.note && (
+                    <p className="text-xs text-slate-500 line-clamp-2">{song.note}</p>
                   )}
                   
                   <div className="mt-3 flex items-center justify-between">

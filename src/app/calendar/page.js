@@ -21,37 +21,32 @@ function isNullOrEmpty(value) {
 }
 
 //根据API传来的数据生成多个可折叠的内容
-const CollapContent = ({ content }) => {
+const CollapsibleSongListContent = ({ content }) => {
   if (isNullOrEmpty(content) || content.length < 1) {
-    return CollapItem("今日没有数据", 0, [], 0);
+    return CollapsibleListItem("今日没有数据", 0, [], 0);
   }
 
   return content.map((list, index) => {
     const title = dayjs(list.date).format("YYYY年MM月DD日") + " " + list.name;
     const songlistId = list.id;
-    const songs = list["songs"];
+    const songs = list.songs || [];
     
-    return CollapItem(title, songlistId, songs, index);
+    return CollapsibleListItem(title, songlistId, songs, index);
   });
 };
 
 //处理点击事件，向/list页面POST列表ID和标题
 function handleClick(e, songlistId, title) {
-  // e.preventDefault();
-  // console.log(title);
+  console.log('Calendar page - storing songlist data:', { songlistId, title });
 
   if (!isNullOrEmpty(window)) {
     window.sessionStorage.setItem("songlistId", songlistId);
     window.sessionStorage.setItem("title", title);
   }
-
-  // axios.get("/list").catch((error) => {
-  //   console.error(error);
-  // });
 }
 
 //只管按可折叠的格式显示标题和内容
-const CollapItem = (title, songlistId, songs, index) => (
+const CollapsibleListItem = (title, songlistId, songs, index) => (
   <Collapsible
     open={index == 0 ? true : false}
     className="card mb-4 overflow-hidden"
@@ -111,7 +106,7 @@ export default function CalendarView() {
 
   //处理鼠标点击的事件，将所选日期格式化为YYYY-MM-DD格式，
   //改变selectedDate，触发useEffect
-  function handleSelectDateChanged(value) {
+  function handleDateSelectionChange(value) {
     setSelectedDate(dayjs(value).format("YYYY-MM-DD"));
   }
 
@@ -233,7 +228,7 @@ export default function CalendarView() {
             <div className="flex justify-center">
               <Calendar 
                 locale="zh" 
-                onChange={handleSelectDateChanged} 
+                onChange={handleDateSelectionChange} 
                 onActiveStartDateChange={handleActiveStartDateChange}
                 tileClassName={tileClassName}
                 tileContent={tileContent}
@@ -253,7 +248,7 @@ export default function CalendarView() {
           </div>
           
           <div className="space-y-4">
-            <CollapContent content={data} />
+            <CollapsibleSongListContent content={data} />
           </div>
         </div>
       </div>

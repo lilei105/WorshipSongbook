@@ -11,28 +11,35 @@ import Timeline from "wavesurfer.js/dist/plugins/timeline";
 import { useRef, useState, useEffect, useCallback } from "react";
 
 // 自定义图片组件，专门处理歌谱图片
-const SafeImage = ({ src, alt, className, style }) => {
+const WorshipSongImage = ({ src, alt, className, style }) => {
   const [imageSrc, setImageSrc] = useState(src);
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    setImageSrc(src);
+    // 重置状态
     setHasError(false);
+    setImageSrc(src);
   }, [src]);
 
   const handleError = () => {
+    console.log('Image failed to load:', src);
     setHasError(true);
   };
 
-  // 直接显示图片，让浏览器处理错误
-  if (src && src !== 'null' && src !== 'undefined') {
+  // 使用safeUrl验证URL
+  const validSrc = safeUrl(src);
+  
+  console.log('WorshipSongImage rendering:', { src: validSrc, alt });
+
+  if (validSrc && !hasError) {
     return (
       <img 
-        src={src}
+        src={validSrc}
         alt={alt}
         className={className}
         style={style}
         onError={handleError}
+        onLoad={() => console.log('Image loaded successfully:', validSrc)}
       />
     );
   }
@@ -45,7 +52,9 @@ const SafeImage = ({ src, alt, className, style }) => {
           <span className="text-3xl">🎵</span>
         </div>
         <h3 className="text-xl font-semibold text-slate-700 mb-2">暂无歌谱</h3>
-        <p className="text-slate-500">这首诗歌暂时还没有上传歌谱</p>
+        <p className="text-slate-500">
+          {validSrc ? '歌谱加载失败' : '这首诗歌暂时还没有上传歌谱'}
+        </p>
       </div>
     </div>
   );
@@ -117,24 +126,67 @@ export default function Detail() {
 
   // 安全获取所有sessionStorage值
   const [songData, setSongData] = useState({
-    song_name: "",
-    audio_url: "",
-    sheet_url: "",
-    song_note: ""
+    songName: "正在加载...",
+    audioUrl: null,
+    sheetUrl: null,
+    songNote: ""
   });
 
   useEffect(() => {
-    if (isBrowser) {
+    // 确保在客户端执行，使用setTimeout确保DOM加载完成
+    setTimeout(() => {
+      if (typeof window !== 'undefined' && window.sessionStorage) {
+        const songName = safeValue(window.sessionStorage.getItem("song_name"), "未知歌曲");
+        const audioUrl = safeUrl(window.sessionStorage.getItem("audio_url"));
+        const sheetUrl = safeUrl(window.sessionStorage.getItem("sheet_url"));
+        const songNote = safeValue(window.sessionStorage.getItem("song_note"), "");
+        
+        console.log('Detail page - sessionStorage keys:', {
+          song_name: window.sessionStorage.getItem("song_name"),
+          audio_url: window.sessionStorage.getItem("audio_url"),
+          sheet_url: window.sessionStorage.getItem("sheet_url"),
+          song_note: window.sessionStorage.getItem("song_note")
+        });
+        
+        console.log('Detail page - processed data:', {
+          songName,
+          audioUrl,
+          sheetUrl,
+          songNote
+        });
+        
+        setSongData({
+          songName,
+          audioUrl,
+          sheetUrl,
+          songNote
+        });
+      } else {
+        console.log('Detail page - window or sessionStorage is undefined');
+      }
+    }, 100); // 延迟100ms确保页面完全加载
+  }, []);
+
+  const { songName, audioUrl, sheetUrl, songNote } = songData;
+
+  // 添加强制刷新按钮用于调试
+  const refreshData = () => {
+    if (typeof window !== 'undefined') {
+      const songName = safeValue(window.sessionStorage.getItem("song_name"), "未知歌曲");
+      const audioUrl = safeUrl(window.sessionStorage.getItem("audio_url"));
+      const sheetUrl = safeUrl(window.sessionStorage.getItem("sheet_url"));
+      const songNote = safeValue(window.sessionStorage.getItem("song_note"), "");
+      
+      console.log('Manual refresh - data:', { songName, audioUrl, sheetUrl, songNote });
+      
       setSongData({
-        song_name: safeValue(window.sessionStorage.getItem("song_name"), "未知歌曲"),
-        audio_url: safeUrl(window.sessionStorage.getItem("audio_url")),
-        sheet_url: safeUrl(window.sessionStorage.getItem("sheet_url")),
-        song_note: safeValue(window.sessionStorage.getItem("song_note"), "")
+        songName,
+        audioUrl,
+        sheetUrl,
+        songNote
       });
     }
-  }, [isBrowser]);
-
-  const { song_name, audio_url, sheet_url, song_note } = songData;
+  };
 
   // const audio_url = "https://1253489749.vod2.myqcloud.com/9d4470b6vodcq1253489749/7cf9d72e5576678020597380155/iIaFmFC1RmUA.mp3";
 
@@ -241,24 +293,30 @@ export default function Detail() {
   return (
     //Detail页面的总布局
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
-      <Headline title={song_note ? `${song_name} - ${song_note}` : song_name || "歌曲详情"} />
+      <Headline title={songNote ? `${songName} - ${songNote}` : songName || "歌曲详情"} />
 
       <div className="container mx-auto px-4 pt-24 pb-8">
 
         <div className="mb-6">
-          <SafeImage 
-            src={sheet_url}
-            alt={`${song_name} 歌谱`}
+          <WorshipSongImage 
+            src={sheetUrl}
+            alt={`${songName} 歌谱`}
             className="w-full h-auto object-contain rounded-2xl shadow-lg"
             style={{ maxHeight: 'calc(100vh - 180px)' }}
           />
         </div>
 
-        <SafeAudioPlayer url={audio_url} />
+        <SafeAudioPlayer url={audioUrl} />
       </div>
 
       <div className="text-center py-8">
-        <div className="flex justify-center gap-8">
+        <div className="flex justify-center gap-8 mb-4">          
+          <button 
+            onClick={refreshData}
+            className="inline-flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            刷新数据
+          </button>
           <Link href="/list" 
                 className="inline-flex items-center gap-2 text-slate-600 hover:text-purple-600 transition-colors"
           >
@@ -269,6 +327,9 @@ export default function Detail() {
           >
             <span>←</span> 返回首页
           </Link>
+        </div>
+        <div className="text-sm text-slate-500">
+          当前歌曲: {songName} | 歌谱: {sheetUrl ? '有' : '无'} | 音频: {audioUrl ? '有' : '无'}
         </div>
       </div>
     </div>
