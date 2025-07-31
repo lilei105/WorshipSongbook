@@ -18,15 +18,6 @@ function storeSongDetails(e, songName, audioUrl, sheetUrl, songNote) {
     window.sessionStorage.setItem("audio_url", audioUrl);
     window.sessionStorage.setItem("sheet_url", sheetUrl);
     window.sessionStorage.setItem("song_note", songNote);
-    
-    console.log('Stored song details:', {
-      songName,
-      audioUrl,
-      sheetUrl,
-      songNote
-    });
-  } else {
-    console.log("Window is not defined");
   }
 }
 
@@ -39,19 +30,13 @@ export default function ShowSongsInList() {
 
   if (isBrowser) {
     useEffect(() => {
-      console.log('List page - songlistId from sessionStorage:', listId);
-      console.log('List page - title from sessionStorage:', title);
-      
       if (listId) {
         axios
           .get(`/api/getByList?listId=${listId}`)
           .then((res) => {
-            console.log("List page - API response:", res.data);
             setSongs(res.data.data || []);
           })
           .catch((error) => console.error(error));
-      } else {
-        console.log('List page - no songlistId found in sessionStorage');
       }
     }, []);
   }
@@ -70,21 +55,14 @@ export default function ShowSongsInList() {
             <div key={index} className="card group cursor-pointer animate-scale-in"
                  style={{ animationDelay: `${index * 0.1}s` }}>
               <Link href={"/detail"}
-                    onClick={(e) => {
-                      console.log('List page - storing individual song:', {
-                        name: song.name,
-                        audio_url: song.audio_url,
-                        sheet_url: song.sheet_url,
-                        note: song.note
-                      });
+                    onClick={(e) =>
                       storeSongDetails(
                         e,
                         song.name,
                         song.audio_url,
                         song.sheet_url,
                         song.note
-                      );
-                    }
+                      )
                     }
               >
                 <div className="aspect-[3/4] relative overflow-hidden rounded-t-2xl">

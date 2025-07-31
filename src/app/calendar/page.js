@@ -37,8 +37,6 @@ const CollapsibleSongListContent = ({ content }) => {
 
 //处理点击事件，向/list页面POST列表ID和标题
 function handleClick(e, songlistId, title) {
-  console.log('Calendar page - storing songlist data:', { songlistId, title });
-
   if (!isNullOrEmpty(window)) {
     window.sessionStorage.setItem("songlistId", songlistId);
     window.sessionStorage.setItem("title", title);

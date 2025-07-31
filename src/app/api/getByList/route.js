@@ -12,8 +12,6 @@ export async function GET(req) {
       songlist_id: listId,
     },
   });
-  
-  console.log(`API getByList - listId: ${listId}, songs found: ${songs.length}`, songs);
 
   return NextResponse.json({ data: songs });
 }

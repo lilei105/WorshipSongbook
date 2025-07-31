@@ -16,20 +16,15 @@ const WorshipSongImage = ({ src, alt, className, style }) => {
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    // 重置状态
     setHasError(false);
     setImageSrc(src);
   }, [src]);
 
   const handleError = () => {
-    console.log('Image failed to load:', src);
     setHasError(true);
   };
 
-  // 使用safeUrl验证URL
   const validSrc = safeUrl(src);
-  
-  console.log('WorshipSongImage rendering:', { src: validSrc, alt });
 
   if (validSrc && !hasError) {
     return (
@@ -39,7 +34,6 @@ const WorshipSongImage = ({ src, alt, className, style }) => {
         className={className}
         style={style}
         onError={handleError}
-        onLoad={() => console.log('Image loaded successfully:', validSrc)}
       />
     );
   }
@@ -133,51 +127,11 @@ export default function Detail() {
   });
 
   useEffect(() => {
-    // 确保在客户端执行，使用setTimeout确保DOM加载完成
-    setTimeout(() => {
-      if (typeof window !== 'undefined' && window.sessionStorage) {
-        const songName = safeValue(window.sessionStorage.getItem("song_name"), "未知歌曲");
-        const audioUrl = safeUrl(window.sessionStorage.getItem("audio_url"));
-        const sheetUrl = safeUrl(window.sessionStorage.getItem("sheet_url"));
-        const songNote = safeValue(window.sessionStorage.getItem("song_note"), "");
-        
-        console.log('Detail page - sessionStorage keys:', {
-          song_name: window.sessionStorage.getItem("song_name"),
-          audio_url: window.sessionStorage.getItem("audio_url"),
-          sheet_url: window.sessionStorage.getItem("sheet_url"),
-          song_note: window.sessionStorage.getItem("song_note")
-        });
-        
-        console.log('Detail page - processed data:', {
-          songName,
-          audioUrl,
-          sheetUrl,
-          songNote
-        });
-        
-        setSongData({
-          songName,
-          audioUrl,
-          sheetUrl,
-          songNote
-        });
-      } else {
-        console.log('Detail page - window or sessionStorage is undefined');
-      }
-    }, 100); // 延迟100ms确保页面完全加载
-  }, []);
-
-  const { songName, audioUrl, sheetUrl, songNote } = songData;
-
-  // 添加强制刷新按钮用于调试
-  const refreshData = () => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
       const songName = safeValue(window.sessionStorage.getItem("song_name"), "未知歌曲");
       const audioUrl = safeUrl(window.sessionStorage.getItem("audio_url"));
       const sheetUrl = safeUrl(window.sessionStorage.getItem("sheet_url"));
       const songNote = safeValue(window.sessionStorage.getItem("song_note"), "");
-      
-      console.log('Manual refresh - data:', { songName, audioUrl, sheetUrl, songNote });
       
       setSongData({
         songName,
@@ -186,9 +140,9 @@ export default function Detail() {
         songNote
       });
     }
-  };
+  }, []);
 
-  // const audio_url = "https://1253489749.vod2.myqcloud.com/9d4470b6vodcq1253489749/7cf9d72e5576678020597380155/iIaFmFC1RmUA.mp3";
+  const { songName, audioUrl, sheetUrl, songNote } = songData;
 
   // WaveSurfer hook
   const useWavesurfer = (containerRef, options) => {
@@ -310,13 +264,7 @@ export default function Detail() {
       </div>
 
       <div className="text-center py-8">
-        <div className="flex justify-center gap-8 mb-4">          
-          <button 
-            onClick={refreshData}
-            className="inline-flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            刷新数据
-          </button>
+        <div className="flex justify-center gap-8">
           <Link href="/list" 
                 className="inline-flex items-center gap-2 text-slate-600 hover:text-purple-600 transition-colors"
           >
@@ -327,9 +275,6 @@ export default function Detail() {
           >
             <span>←</span> 返回首页
           </Link>
-        </div>
-        <div className="text-sm text-slate-500">
-          当前歌曲: {songName} | 歌谱: {sheetUrl ? '有' : '无'} | 音频: {audioUrl ? '有' : '无'}
         </div>
       </div>
     </div>
