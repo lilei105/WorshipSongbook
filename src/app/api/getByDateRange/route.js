@@ -14,12 +14,22 @@ export async function GET(request) {
   }
 
   try {
+    const startParsed = new Date(startDate);
+    const endParsed = new Date(endDate);
+    
+    if (isNaN(startParsed) || isNaN(endParsed)) {
+      return NextResponse.json(
+        { error: "Invalid date format" },
+        { status: 400 }
+      );
+    }
+
     // 查询指定日期范围内的所有歌单
     const songlists = await prisma.songlist.findMany({
       where: {
         date: {
-          gte: new Date(startDate),
-          lte: new Date(endDate),
+          gte: startParsed,
+          lte: endParsed,
         },
       },
       include: {
@@ -33,11 +43,15 @@ export async function GET(request) {
     // 按日期分组数据
     const datesWithData = new Map();
     songlists.forEach((list) => {
-      const dateKey = list.date.toISOString().split("T")[0];
-      if (!datesWithData.has(dateKey)) {
-        datesWithData.set(dateKey, []);
+      try {
+        const dateKey = list.date.toISOString().split("T")[0];
+        if (!datesWithData.has(dateKey)) {
+          datesWithData.set(dateKey, []);
+        }
+        datesWithData.get(dateKey).push(list);
+      } catch (dateError) {
+        console.warn("Error processing date:", dateError);
       }
-      datesWithData.get(dateKey).push(list);
     });
 
     // 转换为对象格式
@@ -47,8 +61,8 @@ export async function GET(request) {
   } catch (error) {
     console.error("Error fetching songlists by date range:", error);
     return NextResponse.json(
-      { error: "Failed to fetch data" },
-      { status: 500 }
+      { data: {} },
+      { status: 200 }
     );
   } finally {
     await prisma.$disconnect();
