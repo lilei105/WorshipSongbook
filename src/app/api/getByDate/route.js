@@ -1,23 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export async function GET(req) {
-  const date = req.nextUrl.searchParams.get("date");
+  try {
+    const date = req.nextUrl.searchParams.get("date");
+    
+    if (!date) {
+      return NextResponse.json(
+        { error: "Date parameter is required" },
+        { status: 400 }
+      );
+    }
 
-  const songlistsAndSongs = await prisma.songlist.findMany({
-    where: {
-      date: { equals: new Date(date) },
-    },
-    include: {
-      songs: {
-        select: {
-          name: true,
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate)) {
+      return NextResponse.json(
+        { error: "Invalid date format" },
+        { status: 400 }
+      );
+    }
+
+    const songlistsAndSongs = await prisma.songlist.findMany({
+      where: {
+        date: { equals: parsedDate },
+      },
+      include: {
+        songs: {
+          select: {
+            name: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  return NextResponse.json({ data: songlistsAndSongs });
+    return NextResponse.json({ data: songlistsAndSongs });
+  } catch (error) {
+    console.error("Error in getByDate:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }
