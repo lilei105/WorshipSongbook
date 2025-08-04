@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { requireAuthMiddleware, createOrganizationFilter } from "@/lib/auth-middleware";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const startDate = searchParams.get("startDate");
   const endDate = searchParams.get("endDate");
+
+  // Require authentication
+  const user = await requireAuthMiddleware(request);
+  if (user instanceof NextResponse) return user;
 
   if (!startDate || !endDate) {
     return NextResponse.json(
@@ -24,16 +29,34 @@ export async function GET(request) {
       );
     }
 
-    // 查询指定日期范围内的所有歌单
+    // 查询指定日期范围内的所有歌单，添加组织过滤
     const songlists = await prisma.songlist.findMany({
       where: {
+        ...createOrganizationFilter(user.organizationId),
         date: {
           gte: startParsed,
           lte: endParsed,
         },
       },
       include: {
-        songs: true,
+        songs: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                nickname: true,
+                email: true
+              }
+            }
+          }
+        },
+        user: {
+          select: {
+            id: true,
+            nickname: true,
+            email: true
+          }
+        }
       },
       orderBy: {
         date: "asc",
@@ -57,14 +80,19 @@ export async function GET(request) {
     // 转换为对象格式
     const result = Object.fromEntries(datesWithData);
 
-    return NextResponse.json({ data: result });
+    return NextResponse.json({ 
+      data: result,
+      user: {
+        id: user.id,
+        nickname: user.nickname,
+        email: user.email,
+        organizationId: user.organizationId
+      }
+    });
   } catch (error) {
-    console.error("Error fetching songlists by date range:", error);
     return NextResponse.json(
-      { data: {} },
-      { status: 200 }
+      { error: "获取日期范围歌单失败" },
+      { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

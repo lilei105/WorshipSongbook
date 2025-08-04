@@ -5,7 +5,7 @@ const globalForPrisma = global;
 const prisma = globalForPrisma.prisma || new PrismaClient({
   datasources: {
     db: {
-      url: process.env.DATABASE_REMOTE_URL || process.env.DATABASE_URL
+      url: process.env.DATABASE_URL
     }
   }
 });
