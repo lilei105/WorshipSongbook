@@ -78,13 +78,10 @@ const SafeAudioPlayer = ({ url }) => {
   return (
     <div className="card p-4">
       <h3 className="text-lg font-semibold text-slate-800 mb-4">音频播放</h3>
-      <WaveSurferPlayer
-        height={48}
-        waveColor="rgb(59, 130, 246)"
-        progressColor="rgb(139, 92, 246)"
-        url={url}
-        plugins={[Timeline.create({ height: 16 })]}
-      />
+      <audio controls className="w-full">
+        <source src={url} type="audio/mpeg" />
+        您的浏览器不支持音频播放。
+      </audio>
     </div>
   );
 };

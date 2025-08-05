@@ -4,23 +4,73 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_REMOTE_URL")
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id        Int        @id @default(autoincrement())
+  name      String     @db.VarChar(255)
+  location  String     @db.VarChar(255)
+  type      String     @default("church") @db.VarChar(50)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  songs     Song[]
+  songlists Songlist[]
+  members   User[]
+
+  @@index([name])
+  @@index([location])
+}
+
+model User {
+  id             Int          @id @default(autoincrement())
+  email          String       @unique @db.VarChar(255)
+  phone          String?      @unique @db.VarChar(20)
+  nickname       String       @db.VarChar(100)
+  password       String       @db.VarChar(255)
+  organizationId Int
+  role           String       @default("member") @db.VarChar(20)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  songs          Song[]
+  songlists      Songlist[]
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([email])
+  @@index([organizationId])
+  @@index([role])
 }
 
 model Song {
-  id          Int       @id @default(autoincrement())
-  name        String
-  by          String?
-  note        String?
-  sheet_url   String?
-  audio_url   String?
-  songlist_id Int?
-  Songlist    Songlist? @relation(fields: [songlist_id], references: [id])
+  id             Int          @id @default(autoincrement())
+  name           String       @db.VarChar(255)
+  by             String?      @db.VarChar(255)
+  note           String?      @db.Text
+  sheet_url      String?      @db.VarChar(500)
+  audio_url      String?      @db.VarChar(500)
+  organizationId Int
+  userId         Int
+  songlist_id    Int?
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  songlist       Songlist?    @relation(fields: [songlist_id], references: [id])
+  user           User         @relation(fields: [userId], references: [id])
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([songlist_id])
 }
 
 model Songlist {
-  id    Int       @id @default(autoincrement())
-  name  String?
-  date  DateTime?
-  songs Song[]
+  id             Int          @id @default(autoincrement())
+  name           String?      @db.VarChar(255)
+  date           DateTime?    @db.Date
+  organizationId Int
+  userId         Int
+  songs          Song[]
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  user           User         @relation(fields: [userId], references: [id])
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([date])
 }

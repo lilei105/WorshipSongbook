@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Headline from "../../../Headline";
+import authAxios from "@/lib/auth-api";
 import axios from "axios";
 import { Search, Plus, Music, Upload, Check } from "lucide-react";
 
@@ -36,19 +37,25 @@ export default function AddSongsToSonglist() {
 
   const fetchSonglist = async () => {
     try {
-      const response = await axios.get(`/api/songlist/${songlistId}`);
+      const response = await authAxios.get(`/api/songlist/${songlistId}`);
       setSonglist(response.data.data);
     } catch (err) {
       console.error("获取歌单失败:", err);
+      if (err.response?.status === 401) {
+        window.location.href = '/login';
+      }
     }
   };
 
   const fetchAllSongs = async (page = 1) => {
     try {
-      const response = await axios.get(`/api/songs?page=${page}&limit=10`);
+      const response = await authAxios.get(`/api/songs?page=${page}&limit=10`);
       setSongs(response.data.data);
     } catch (err) {
       console.error("获取歌曲列表失败:", err);
+      if (err.response?.status === 401) {
+        window.location.href = '/login';
+      }
     }
   };
 
@@ -61,10 +68,13 @@ export default function AddSongsToSonglist() {
 
     try {
       setLoading(true);
-      const response = await axios.get(`/api/songs/search?q=${query}`);
+      const response = await authAxios.get(`/api/songs/search?q=${query}`);
       setSearchResults(response.data.data);
     } catch (err) {
       console.error("搜索失败:", err);
+      if (err.response?.status === 401) {
+        window.location.href = '/login';
+      }
     } finally {
       setLoading(false);
     }
@@ -72,13 +82,16 @@ export default function AddSongsToSonglist() {
 
   const addExistingSong = async (songId) => {
     try {
-      await axios.post(`/api/songlist/${songlistId}/add-song`, {
+      await authAxios.post(`/api/songlist/${songlistId}/add-song`, {
         songId,
       });
       alert("歌曲已添加到歌单！");
       fetchAllSongs(); // 刷新列表
     } catch (err) {
       setError("添加失败，请重试");
+      if (err.response?.status === 401) {
+        window.location.href = '/login';
+      }
     }
   };
 
@@ -87,10 +100,10 @@ export default function AddSongsToSonglist() {
     setLoading(true);
 
     try {
-      const response = await axios.post("/api/songs/create", newSong);
+      const response = await authAxios.post("/api/songs/create", newSong);
       const newSongId = response.data.data.id;
       
-      await axios.post(`/api/songlist/${songlistId}/add-song`, {
+      await authAxios.post(`/api/songlist/${songlistId}/add-song`, {
         songId: newSongId,
       });
 

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Headline from "../../Headline";
-import axios from "axios";
+import authAxios from "@/lib/auth-api";
 import { Music, Calendar, Plus, Edit3 } from "lucide-react";
 
 export default function SonglistDetail() {
@@ -21,13 +21,16 @@ export default function SonglistDetail() {
 
   const fetchSonglist = async () => {
     try {
-      const response = await axios.get(`/api/songlist/${songlistId}`);
+      const response = await authAxios.get(`/api/songlist/${songlistId}`);
       setSonglist(response.data.data);
       setLoading(false);
     } catch (err) {
       setError("获取歌单失败");
       setLoading(false);
       console.error("获取歌单失败:", err);
+      if (err.response?.status === 401) {
+        window.location.href = '/login';
+      }
     }
   };
 

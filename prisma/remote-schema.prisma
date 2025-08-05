@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_REMOTE_URL")
+}
+
+model Song {
+  id          Int       @id @default(autoincrement())
+  name        String
+  by          String?
+  note        String?   @db.Text
+  sheet_url   String?   @db.VarChar(500)
+  audio_url   String?   @db.VarChar(500)
+  songlist_id Int?
+  Songlist    Songlist? @relation(fields: [songlist_id], references: [id])
+  
+  @@index([songlist_id])
+}
+
+model Songlist {
+  id    Int       @id @default(autoincrement())
+  name  String?   @db.VarChar(255)
+  date  DateTime? @db.Date
+  songs Song[]
+  
+  @@index([date])
+}

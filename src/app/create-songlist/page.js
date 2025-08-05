@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Headline from "../Headline";
+import authAxios from "@/lib/auth-api";
 import axios from "axios";
 import { Calendar, Plus } from "lucide-react";
 
@@ -19,7 +20,7 @@ export default function CreateSonglist() {
     setError("");
 
     try {
-      const response = await axios.post("/api/songlist/create", {
+      const response = await authAxios.post("/api/songlist/create", {
         name,
         date: date || undefined,
       });

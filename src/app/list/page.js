@@ -5,7 +5,7 @@ import Headline from "../Headline";
 import Image from "next/image";
 import Link from "next/link";
 import { Music } from 'lucide-react';
-import axios from "axios";
+import authAxios from "@/lib/auth-api";
 // import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 function isNullOrEmpty(value) {
@@ -23,23 +23,32 @@ function storeSongDetails(e, songName, audioUrl, sheetUrl, songNote) {
 
 export default function ShowSongsInList() {
   const [songs, setSongs] = useState([]);
-  const isBrowser = typeof window !== "undefined";
+  const [listId, setListId] = useState(null);
+  const [title, setTitle] = useState('');
 
-  const listId = window.sessionStorage.getItem("songlistId");
-  const title = window.sessionStorage.getItem("title");
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedListId = window.sessionStorage.getItem("songlistId");
+      const storedTitle = window.sessionStorage.getItem("title");
+      setListId(storedListId);
+      setTitle(storedTitle);
 
-  if (isBrowser) {
-    useEffect(() => {
-      if (listId) {
-        axios
-          .get(`/api/getByList?listId=${listId}`)
+      if (storedListId) {
+        authAxios
+          .get(`/api/getByList?listId=${storedListId}`)
           .then((res) => {
             setSongs(res.data.data || []);
           })
-          .catch((error) => console.error(error));
+          .catch((error) => {
+            if (error.response?.status === 401) {
+              window.location.href = '/login';
+            } else {
+              console.error(error);
+            }
+          });
       }
-    }, []);
-  }
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
