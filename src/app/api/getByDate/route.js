@@ -3,10 +3,19 @@ import prisma from "@/lib/prisma";
 import { requireAuthMiddleware, createOrganizationFilter } from "@/lib/auth-middleware";
 
 export async function GET(req) {
+  const startTime = Date.now();
+  const endpoint = '/api/getByDate';
+  
+  console.log(`[${new Date().toISOString()}] ${endpoint} - Request started`);
+  
   try {
     // Require authentication
     const user = await requireAuthMiddleware(req);
-    if (user instanceof NextResponse) return user;
+    if (user instanceof NextResponse) {
+      const duration = Date.now() - startTime;
+      console.log(`[${new Date().toISOString()}] ${endpoint} - Request completed in ${duration}ms (auth failed)`);
+      return user;
+    }
 
     const date = req.nextUrl.searchParams.get("date");
     
@@ -56,7 +65,7 @@ export async function GET(req) {
       }
     });
 
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       data: songlistsAndSongs,
       user: {
         id: user.id,
@@ -65,7 +74,15 @@ export async function GET(req) {
         organizationId: user.organizationId
       }
     });
+    
+    const duration = Date.now() - startTime;
+    console.log(`[${new Date().toISOString()}] ${endpoint} - Request completed in ${duration}ms (success)`);
+    
+    return response;
   } catch (error) {
+    const duration = Date.now() - startTime;
+    console.log(`[${new Date().toISOString()}] ${endpoint} - Request failed in ${duration}ms: ${error.message}`);
+    
     return NextResponse.json(
       { error: "获取日期歌单失败" },
       { status: 500 }

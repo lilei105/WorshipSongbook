@@ -9,7 +9,7 @@ import Footer from "../Footer";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import dayjs from "dayjs";
-import axios from "axios";
+import authAxios from "@/lib/auth-api";
 // import Collapsible from 'react-collapsible';
 
 const Collapsible = dynamic(() => import("react-collapsible"), {
@@ -123,13 +123,17 @@ export default function CalendarView() {
     const { startDate, endDate } = getDateRangeForMonth(date);
     
     try {
-      const response = await axios.get(`/api/getByDateRange?startDate=${startDate}&endDate=${endDate}`);
+      const response = await authAxios.get(`/api/getByDateRange?startDate=${startDate}&endDate=${endDate}`);
       
       if (response.data.data) {
         setCalendarData(response.data.data);
       }
     } catch (error) {
       console.error("Error fetching calendar data:", error);
+      if (error.response?.status === 401) {
+        // Redirect to login if unauthorized
+        window.location.href = '/login';
+      }
     }
   }, [getDateRangeForMonth]);
 
@@ -205,7 +209,7 @@ export default function CalendarView() {
   // 使用useEffect，每当selectedDate改变时触发api查询，
   // 并把api返回的结果以json形式更新到data里
   useEffect(() => {
-    axios
+    authAxios
       .get(`/api/getByDate?date=${selectedDate}`)
       .then((res) => {
         let data = isNullOrEmpty(res.data.data) ? [] : res.data.data;
@@ -213,7 +217,14 @@ export default function CalendarView() {
 
         setData(data);
       })
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        if (error.response?.status === 401) {
+          // Redirect to login if unauthorized
+          window.location.href = '/login';
+        } else {
+          console.error("Error fetching data:", error);
+        }
+      });
   }, [selectedDate]);
 
   return (

@@ -3,15 +3,26 @@ import prisma from "@/lib/prisma";
 import { requireAuthMiddleware, createOrganizationFilter } from "@/lib/auth-middleware";
 
 export async function GET(request) {
+  const startTime = Date.now();
+  const endpoint = '/api/getByDateRange';
+  
+  console.log(`[${new Date().toISOString()}] ${endpoint} - Request started`);
+  
   const { searchParams } = new URL(request.url);
   const startDate = searchParams.get("startDate");
   const endDate = searchParams.get("endDate");
 
   // Require authentication
   const user = await requireAuthMiddleware(request);
-  if (user instanceof NextResponse) return user;
+  if (user instanceof NextResponse) {
+    const duration = Date.now() - startTime;
+    console.log(`[${new Date().toISOString()}] ${endpoint} - Request completed in ${duration}ms (auth failed)`);
+    return user;
+  }
 
   if (!startDate || !endDate) {
+    const duration = Date.now() - startTime;
+    console.log(`[${new Date().toISOString()}] ${endpoint} - Request completed in ${duration}ms (validation failed)`);
     return NextResponse.json(
       { error: "startDate and endDate are required" },
       { status: 400 }
@@ -23,6 +34,8 @@ export async function GET(request) {
     const endParsed = new Date(endDate);
     
     if (isNaN(startParsed) || isNaN(endParsed)) {
+      const duration = Date.now() - startTime;
+      console.log(`[${new Date().toISOString()}] ${endpoint} - Request completed in ${duration}ms (validation failed)`);
       return NextResponse.json(
         { error: "Invalid date format" },
         { status: 400 }
@@ -80,7 +93,7 @@ export async function GET(request) {
     // 转换为对象格式
     const result = Object.fromEntries(datesWithData);
 
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       data: result,
       user: {
         id: user.id,
@@ -89,7 +102,15 @@ export async function GET(request) {
         organizationId: user.organizationId
       }
     });
+    
+    const duration = Date.now() - startTime;
+    console.log(`[${new Date().toISOString()}] ${endpoint} - Request completed in ${duration}ms (success)`);
+    
+    return response;
   } catch (error) {
+    const duration = Date.now() - startTime;
+    console.log(`[${new Date().toISOString()}] ${endpoint} - Request failed in ${duration}ms: ${error.message}`);
+    
     return NextResponse.json(
       { error: "获取日期范围歌单失败" },
       { status: 500 }
